@@ -10,11 +10,6 @@ const TextGenerator = () => {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const AutoExpandingTextarea = () => {
-    const [inputText, setInputText] = useState('');
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-  };
-
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'inherit';
@@ -73,6 +68,11 @@ const TextGenerator = () => {
       >
         Generate
       </button>
+      {isLoading && (
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+          <p className="">Summary is loading...</p>
+        </div>
+      )}
       {generatedText && (
         <div className="mt-4 p-4 bg-gray-100 rounded">
           <h3 className="font-bold mb-2">Summary:</h3>
