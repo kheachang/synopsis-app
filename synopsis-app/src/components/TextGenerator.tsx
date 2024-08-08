@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TextGenerator = () => {
   const [inputText, setInputText] = useState('');
   const [generatedText, setGeneratedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const AutoExpandingTextarea = () => {
+    const [inputText, setInputText] = useState('');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+  };
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'inherit';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [inputText]);
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -20,7 +34,7 @@ const TextGenerator = () => {
         },
         body: JSON.stringify({ inputText }),
       });
-      
+
       console.log('res', response)
       if (!response.ok) {
         throw new Error('Failed to generate summary');
@@ -43,7 +57,8 @@ const TextGenerator = () => {
           <span className="label-text">Input your text</span>
         </div>
         <textarea
-          className="textarea textarea-bordered h-24"
+          ref={textareaRef}
+          className="textarea textarea-bordered w-full min-h-[6rem] resize-none"
           placeholder="text here"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
