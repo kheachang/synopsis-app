@@ -20,6 +20,7 @@ const TextGenerator = () => {
   const handleGenerate = async () => {
     setIsLoading(true);
     setError('');
+    setGeneratedText('');
     console.log('input text', inputText)
     try {
       const response = await fetch('/api/generate', {
