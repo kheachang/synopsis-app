@@ -1,21 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { exec } from "child_process";
 import { promisify } from "util";
+import summarize from "../../../summarize";
 
 const execPromise = promisify(exec);
-
-class PythonScriptError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "PythonScriptError";
-  }
-}
 
 export async function GET() {
   return NextResponse.json({ message: "Hello from the API!" });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { inputText, numSentences } = await request.json();
 
@@ -34,28 +28,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Ensure the input is properly escaped to prevent command injection
-    const escapedInput = inputText.replace(/"/g, '\\"');
+    // Use the JavaScript summarize function
+    const summary = await summarize(inputText, parsedNumSentences);
 
-    // Execute the Python script with the number of sentences
-    const { stdout, stderr } = await execPromise(
-      `python summarize.py ${parsedNumSentences} "${escapedInput}"`
-    );
-
-    console.error("Python script errors:", stderr);
-
-    if (stderr) {
-      return NextResponse.json(
-        { error: "Error executing Python script", details: stderr },
-        { status: 500 }
-      );
-    }
-
-    // Extract the actual summary from the output (assuming it comes after "Summary:")
-    const summaryMatch = stdout.match(/Summary:\n([\s\S]*)/);
-    const summary = summaryMatch ? summaryMatch[1].trim() : "";
-
-    return NextResponse.json({ result: summary, debug: stdout });
+    return NextResponse.json({ result: summary });
   } catch (error) {
     console.error("API route error:", error);
     if (error instanceof Error) {
