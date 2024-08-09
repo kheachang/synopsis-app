@@ -17,35 +17,58 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { inputText } = await request.json();
+    const { inputText, numSentences } = await request.json();
 
-    const escapedInput = inputText.replace(/"/g, '\\"');
-
-    const { stdout, stderr } = await execPromise(
-      `python summarize.py "${escapedInput}"`
-    );
-
-    if (stderr) {
-      throw new PythonScriptError(stderr);
+    if (!inputText || typeof inputText !== "string") {
+      return NextResponse.json(
+        { error: "Invalid input text" },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ result: stdout.trim() });
-  } catch (error: unknown) {
-    console.error("API route error:", error);
-
-    if (error instanceof PythonScriptError) {
+    const parsedNumSentences = parseInt(numSentences, 10);
+    if (isNaN(parsedNumSentences) || parsedNumSentences < 1) {
       return NextResponse.json(
-        { error: "Python Script Error", details: error.message },
+        { error: "Invalid number of sentences" },
+        { status: 400 }
+      );
+    }
+
+    // Ensure the input is properly escaped to prevent command injection
+    const escapedInput = inputText.replace(/"/g, '\\"');
+
+    // Execute the Python script with the number of sentences
+    const { stdout, stderr } = await execPromise(
+      `python summarize.py ${parsedNumSentences} "${escapedInput}"`
+    );
+
+    console.error("Python script errors:", stderr);
+
+    if (stderr) {
+      return NextResponse.json(
+        { error: "Error executing Python script", details: stderr },
         { status: 500 }
       );
-    } else if (error instanceof Error) {
+    }
+
+    // Extract the actual summary from the output (assuming it comes after "Summary:")
+    const summaryMatch = stdout.match(/Summary:\n([\s\S]*)/);
+    const summary = summaryMatch ? summaryMatch[1].trim() : "";
+
+    return NextResponse.json({ result: summary, debug: stdout });
+  } catch (error) {
+    console.error("API route error:", error);
+    if (error instanceof Error) {
       return NextResponse.json(
-        { error: "Internal Server Error", details: error.message },
+        { error: "Internal server error", details: error.message },
         { status: 500 }
       );
     } else {
       return NextResponse.json(
-        { error: "Unknown Error", details: "An unknown error occurred" },
+        {
+          error: "Internal server error",
+          details: "An unknown error occurred",
+        },
         { status: 500 }
       );
     }

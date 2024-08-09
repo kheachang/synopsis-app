@@ -7,6 +7,7 @@ const TextGenerator = () => {
   const [generatedText, setGeneratedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sentenceCount, setSentenceCount] = useState('3');
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -21,17 +22,15 @@ const TextGenerator = () => {
     setIsLoading(true);
     setError('');
     setGeneratedText('');
-    console.log('input text', inputText)
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ inputText }),
+        body: JSON.stringify({ inputText, numSentences: sentenceCount }),
       });
 
-      console.log('res', response)
       if (!response.ok) {
         throw new Error('Failed to generate summary');
       }
@@ -49,9 +48,7 @@ const TextGenerator = () => {
   return (
     <div>
       <label className="form-control">
-        <div className="label">
-          <span className="label-text">Input your text</span>
-        </div>
+        <h3 className="pb-3">Input text that you want summarized:</h3>
         <textarea
           ref={textareaRef}
           className="textarea textarea-bordered w-full min-h-[6rem] resize-none"
@@ -62,8 +59,16 @@ const TextGenerator = () => {
         <div className="label">
         </div>
       </label>
+      <input
+        type="text"
+        placeholder="3"
+        className="input w-12 h-10 mr-6"
+        value={sentenceCount}
+        onChange={(e) => setSentenceCount(e.target.value)}
+      />
+      Sentences
       <button
-        className="btn"
+        className="btn ml-6"
         onClick={handleGenerate}
         disabled={isLoading || !inputText.trim()}
       >
