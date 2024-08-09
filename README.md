@@ -20,4 +20,5 @@ This tool is particularly useful for quickly grasping the main points of long ar
 
 
 ## Work in progress - TODOs:
-- [ ] create a GUI
+- [x] create a GUI
+- [ ] fix sentence splitting bug
