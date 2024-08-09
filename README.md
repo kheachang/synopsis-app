@@ -1,5 +1,7 @@
 # TextRank Algorithm and Summarization GUI
 
+**this is still a work in progress**
+
 The TextRank algorithm is an automated text summarization technique inspired by Google's PageRank algorithm. It works by:
 
 1. Breaking the text into sentences
