@@ -4,7 +4,7 @@ const About = () => {
       <p>
         The TextRank algorithm is an automated text summarization technique inspired by Google's
         PageRank algorithm.
-        This method allows for extractive summarization, where key sentences from the original text are selected to form a concise summary.
+        This method allows for <b>extractive summarization</b>, where key sentences from the original text are selected to form a concise summary.
       </p>
       <br />
       <p >"In short, a graph-based ranking algorithm is a way of deciding
